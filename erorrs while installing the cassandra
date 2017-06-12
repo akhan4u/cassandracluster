@@ -1,0 +1,9 @@
+erorrs while installing the cassandra 
+
+[root@cassandra3 cassandra]# tail /var/log/cassandra/cassandra.log 
+Cassandra 3.0 and later require Java 8u40 or later.
+[root@cassandra3 cassandra]#
+
+
+
+Cassandra requires the java version java-1.8.0-openjdk.x86_64

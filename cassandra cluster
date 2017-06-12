@@ -1,0 +1,85 @@
+Setting up a 3 node cassandra cluster
+
+1. We will need to install the datastax variant of cassandra cluster and we will be using 3 nodes. DataStax Community Edition is a free packaged distribution of the Apache Cassandra database. 
+2. we will be installing the cassandra version 3.0.9.
+
+Before we begin there are certain pre-requisites: 
+pre-requisites:
+  [root@localhost /]# java -version && python -V && which openssl
+	openjdk version "1.8.0_131"
+	OpenJDK Runtime Environment (build 1.8.0_131-b11)
+	OpenJDK 64-Bit Server VM (build 25.131-b11, mixed mode)
+  	Python 2.6.6
+  	/usr/bin/openssl
+
+So to begin with we will be installing the cassandra on the 3 machines at first, so we will need to add the datastax repository to the yum repos directory. 
+
+create a file in /etc/yum.repos.d/ with the name datastax.repo
+and paste the following content. 
+
+[datastax]
+name = DataStax Repo for Apache Cassandra
+baseurl = http://rpm.datastax.com/community
+enabled = 1
+gpgcheck = 0
+
+:wq the file. 
+
+Now run yum repolist, to build the metadata information for the repository. Once your metadata is built its time to install the cassandra. we will install cassandra with the command. 
+# yum install dsc30 cassandra30 -y 
+
+Now we will have our cassandra installed and will not be running over by default. 
+For starting the cassandra we can use the service command: 
+
+# service cassandra start 
+
+Also you can use the command nodetool which is provided by the cassandra package to check the status of your 
+cassandra instance at any given time. 
+
+# nodetool status
+
+Now to make a cluster from all the 3 cassandra machines do the following:
+
+1. Stop the running instances of cassandra from all the 3 nodes. 
+2. Delete the contents of /var/lib/cassandra/ directory from all the 3 nodes (optional)
+
+Now switch over to the default configuration directory of cassandra i.e /etc/cassandra/conf/ 
+and open the cassandra.yaml file in your favourite text editor. 
+
+now change the following directives in the file: 
+
+1. cluster_name = "My cluster"  #SET THE NAME TO THE CLUSTER
+2. listen_address = ""			#SET THIS TO THE IP ADDRESS OF EACH MACHINE
+3. rpc_address = "" 			#SET THIS TO THE IP ADDRESS OF EACH MACHINE
+4. - seeds: "172.16.16.178"     #SET THIS TO THE IP ADRESS OF THE MACHINE WHICH WILL BE SEED NODE SAME IN ALL.
+
+Now start the cassandra service on all the nodes, and check the status of the cluster with the command:
+# nodetool status
+
+[root@cassandra1 lib]# nodetool status
+Datacenter: datacenter1
+=======================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address        Load       Tokens       Owns (effective)  Host ID                               Rack
+UN  172.16.16.180  146.26 KB  256          65.8%             45445cbb-c352-43c3-baca-297c441fa9b8  rack1
+Datacenter: dc1
+===============
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address        Load       Tokens       Owns (effective)  Host ID                               Rack
+UN  172.16.16.178  246.39 KB  256          65.7%             eab2cfcf-21a5-4476-8c09-0a8d761b8c60  rack2
+UN  172.16.16.179  237.83 KB  256          68.5%             40f6bba7-f192-45da-af33-dc156bd4008e  rack1
+
+[root@cassandra1 lib]# 
+
+
+Useful abbrevations from the nodetool output: 
+UN - Normal
+UJ - Joining
+UM - Moving
+DN - Node Down
+
+
+
+
