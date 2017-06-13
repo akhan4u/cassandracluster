@@ -1,16 +1,16 @@
 Setting up a 3 node cassandra cluster
 
 1. We will need to install the datastax variant of cassandra cluster and we will be using 3 nodes. DataStax Community Edition is a free packaged distribution of the Apache Cassandra database. 
-2. we will be installing the cassandra version 3.0.9.
+2. We will be installing the cassandra version 3.0.9.
 
 Before we begin there are certain pre-requisites: 
 pre-requisites:
   [root@localhost /]# java -version && python -V && which openssl
-	openjdk version "1.8.0_131"
+	openjdk version "1.8.0_131"				#java-jdk version 1.8 required
 	OpenJDK Runtime Environment (build 1.8.0_131-b11)
 	OpenJDK 64-Bit Server VM (build 25.131-b11, mixed mode)
-  	Python 2.6.6
-  	/usr/bin/openssl
+  	Python 2.6.6							#python version 2.6 atleast
+  	/usr/bin/openssl						#openssl should be present,ensure openssl package is installed. 
 
 So to begin with we will be installing the cassandra on the 3 machines at first, so we will need to add the datastax repository to the yum repos directory. 
 
@@ -41,17 +41,22 @@ cassandra instance at any given time.
 Now to make a cluster from all the 3 cassandra machines do the following:
 
 1. Stop the running instances of cassandra from all the 3 nodes. 
-2. Delete the contents of /var/lib/cassandra/ directory from all the 3 nodes (optional)
+2. Delete the contents of /var/lib/cassandra/data/system directory from all the 3 nodes. 
 
 Now switch over to the default configuration directory of cassandra i.e /etc/cassandra/conf/ 
 and open the cassandra.yaml file in your favourite text editor. 
 
 now change the following directives in the file: 
 
-1. cluster_name = "My cluster"  #SET THE NAME TO THE CLUSTER
-2. listen_address = ""			#SET THIS TO THE IP ADDRESS OF EACH MACHINE
-3. rpc_address = "" 			#SET THIS TO THE IP ADDRESS OF EACH MACHINE
-4. - seeds: "172.16.16.178"     #SET THIS TO THE IP ADRESS OF THE MACHINE WHICH WILL BE SEED NODE SAME IN ALL.
+1. cluster_name = "My cluster"  	#SET THE NAME TO THE CLUSTER
+2. listen_address = ""				#SET THIS TO THE IP ADDRESS OF EACH MACHINE
+3. rpc_address = "" 				#SET THIS TO THE IP ADDRESS OF EACH MACHINE
+4. - seeds: "172.16.16.178"     	#SET THIS TO THE IP ADRESS OF THE MACHINE WHICH WILL BE SEED NODE SAME IN ALL.
+5. endpoint_snitch: SimpleSnitch    #NAME OF THE SNITCH, WHICH IS WHAT TELLS CASSANDRA ABOUT WHAT ITS NETWORK LOOKS LIKE. 									THIS DEFAULTS TO SIMPLESNITCH, WHICH IS USED FOR NETWORKS IN ONE DATACENTER. IN OUR CASE,
+								 WE'LL CHANGE IT TO GOSSIPINGPROPERTYFILESNITCH, WHICH IS PREFERRED FOR PRODUCTION SETUPS.
+
+NOTE: Seeds are used during startup to discover the cluster. You can get to know more about seed nodes from the below link:
+https://stackoverflow.com/questions/10407072/cassandra-seed-nodes-and-clients-connecting-to-nodes 
 
 Now start the cassandra service on all the nodes, and check the status of the cluster with the command:
 # nodetool status
